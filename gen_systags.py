@@ -8,6 +8,36 @@ import re
 import subprocess
 import sys
 
+def detect_linux_x86_64_generic_include_path(incl_paths):
+    linux_x86_64_generic_include_path = '/usr/include/x86_64-linux-gnu'
+    if os.path.isdir(linux_x86_64_generic_include_path):
+        incl_paths.append(linux_x86_64_generic_include_path)
+    gcc_paths = sorted(glob('/usr/lib/gcc/x86_64-linux-gnu/*'),
+                       reverse=True)
+    for path in gcc_paths:
+        if os.path.isdir(path + '/include'):
+            incl_paths.append(path + '/include')
+            if os.path.isdir(path + '/include-fixed'):
+                incl_paths.append(path + '/include-fixed')
+            break
+
+def detect_linux_x86_64_redhat_include_path(incl_paths):
+    gcc_paths = sorted(glob('/usr/lib/gcc/x86_64-redhat-linux/*'),
+                       reverse=True)
+    for path in gcc_paths:
+        if os.path.isdir(path + '/include'):
+            incl_paths.append(path + '/include')
+            break
+
+def detect_macos_include_path(incl_paths):
+    cmd_line_tool_paths = sorted(
+        glob('/Library/Developer/CommandLineTools/usr/lib/clang/*'),
+        reverse=True)
+    for path in cmd_line_tool_paths:
+        if os.path.isdir(path + '/include'):
+            incl_paths.append(path + '/include')
+            break
+
 def find_file(filename, possible_paths):
     """
     Finds the file path given a file name and a list of possible paths.
@@ -102,15 +132,18 @@ def gen_systags(hdr_files, incl_paths):
 def main():
     """
     Generates the header file list using the standard C99/POSIX header
-    files and macOS include paths.  Actually, POSIX header files include
-    the C99 header files, but the duplication does not matter.
+    files and Linux/macOS include paths.  Actually, POSIX header files
+    include the C99 header files, but the duplication does not matter.
     """
     incl_paths = [
         '/usr/include',
     ]
-    cmd_line_tool_path = '/Library/Developer/CommandLineTools/usr/lib/clang'
-    if os.path.isdir(cmd_line_tool_path):
-        incl_paths.extend(glob(cmd_line_tool_path + '/*/include'))
+    detect_linux_x86_64_generic_include_path(incl_paths)
+    detect_linux_x86_64_redhat_include_path(incl_paths)
+    detect_macos_include_path(incl_paths)
+    print('The following include paths are used:')
+    for incl_path in incl_paths:
+        print(' ', incl_path)
     hdr_files = [
         # Stardard C99 header files
         "assert.h",

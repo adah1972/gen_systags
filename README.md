@@ -13,7 +13,7 @@ So I adopted an alternative method. I’ll start from the standard C header file
 
 I have not put in the C++ header files, as **ctags** probably is not a good tool for C++ code completion. For that purpose, I use [**clang_complete**](https://github.com/Rip-Rip/clang_complete). Also be noted that it is normal for the script to complain about some missing header files, as it is not a true C preprocessor and does not deal with conditions. It is possible that it tries to find a header file that exists only on another platform.
 
-The default include paths work for macOS with command line tools. You will need to adjust them in other environments. Also be noted the best order is probably not the one as recognized by your compiler. This script does not support `include_next`, so it is probably a better idea to put */usr/include* before your compiler-specific include paths.
+The default include paths work for macOS Sierra (with command line tools) and some Linux flavours (tested on Ubuntu 16.04 LTS and CentOS 7). You may need to adjust them in other environments. Also be noted the best order is probably not the one as recognized by your compiler. This script does not support `include_next`, so it is probably a better idea to put */usr/include* before your compiler-specific include paths.
 
 ## Licence
 
