@@ -1,8 +1,7 @@
 # gen_systags.py
 
 I used to run a command line as follows to generate a systag file for
-Vim code completion (omni-completion and
-[echofunc][1]):
+Vim code completion (omni-completion and [echofunc][1]):
 
 ```bash
 ctags -R --c-kinds=+p --extra=+q --fields=+iaS -I … \
