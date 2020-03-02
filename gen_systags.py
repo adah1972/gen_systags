@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#coding: utf-8
+# coding: utf-8
 
 from __future__ import print_function
 from glob import glob
@@ -7,6 +7,7 @@ import os
 import re
 import subprocess
 import sys
+
 
 def detect_linux_x86_64_generic_include_path(incl_paths):
     linux_x86_64_generic_include_path = '/usr/include/x86_64-linux-gnu'
@@ -21,6 +22,7 @@ def detect_linux_x86_64_generic_include_path(incl_paths):
                 incl_paths.append(path + '/include-fixed')
             break
 
+
 def detect_linux_x86_64_redhat_include_path(incl_paths):
     gcc_paths = sorted(glob('/usr/lib/gcc/x86_64-redhat-linux/*'),
                        reverse=True)
@@ -28,6 +30,7 @@ def detect_linux_x86_64_redhat_include_path(incl_paths):
         if os.path.isdir(path + '/include'):
             incl_paths.append(path + '/include')
             break
+
 
 def detect_macos_include_path(incl_paths):
     cmd_line_tool_paths = sorted(
@@ -37,6 +40,7 @@ def detect_macos_include_path(incl_paths):
         if os.path.isdir(path + '/include'):
             incl_paths.append(path + '/include')
             break
+
 
 def find_file(filename, possible_paths):
     """
@@ -48,6 +52,7 @@ def find_file(filename, possible_paths):
             return full_path
     return False
 
+
 def find_included_files(hdr_file_path):
     """
     Finds files included by a given header file.
@@ -55,10 +60,11 @@ def find_included_files(hdr_file_path):
     included_files = set()
     with open(hdr_file_path) as f:
         for line in f:
-            match = re.match('\s*#\s*include\s*<([^>]+)>', line)
+            match = re.match(r'\s*#\s*include\s*<([^>]+)>', line)
             if match:
                 included_files.add(match.group(1))
     return included_files
+
 
 def find_header_files(hdr_files, incl_paths):
     """
@@ -79,11 +85,11 @@ def find_header_files(hdr_files, incl_paths):
                 result.append(full_path)
                 included_files = find_included_files(full_path)
                 for included_file in included_files:
-                    if not included_src.has_key(included_file):
+                    if included_file not in included_src:
                         included_src[included_file] = hdr_file
                 new_files.update(included_files)
             else:
-                if included_src.has_key(hdr_file):
+                if hdr_file in included_src:
                     print('%s (first included by %s) is not found' %
                           (hdr_file, included_src[hdr_file]),
                           file=sys.stderr)
@@ -94,6 +100,7 @@ def find_header_files(hdr_files, incl_paths):
         hdr_files = list(new_files)
         new_files = set()
     return result
+
 
 def gen_systags(hdr_files, incl_paths):
     """
@@ -129,6 +136,7 @@ def gen_systags(hdr_files, incl_paths):
     ctags_cmd.extend(hdr_files_with_path)
     subprocess.check_call(ctags_cmd)
 
+
 def main():
     """
     Generates the header file list using the standard C99/POSIX header
@@ -145,7 +153,7 @@ def main():
     for incl_path in incl_paths:
         print(' ', incl_path)
     hdr_files = [
-        # Stardard C99 header files
+        # Standard C99 header files
         "assert.h",
         "complex.h",
         "ctype.h",
@@ -256,6 +264,7 @@ def main():
         "wordexp.h",
     ]
     gen_systags(hdr_files, incl_paths)
+
 
 if __name__ == '__main__':
     main()
